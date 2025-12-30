@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kcal Tracker AI</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: black;
+      color: white;
+      border: none;
+      font-weight: bold;
+    }
+    .stats p {
+      margin: 8px 0;
+      font-weight: 500;
+    }
+    .small {
+      font-size: 14px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🔥 Kcal Tracker AI</h1>
+
+<div class="card">
+  <p class="small">Dagelijkse doelen</p>
+  <input id="kcalGoal" placeholder="Kcal doel (bv. 2300)">
+  <input id="waterGoal" placeholder="Water doel in liter (bv. 2)">
+  <button onclick="saveGoals()">Opslaan</button>
+</div>
+
+<div class="card">
+  <p class="small">Wat heb je gegeten of gedronken?</p>
+  <input id="input" placeholder="bv. 2 eieren, 2 boterhammen / water 0.5">
+  <button onclick="addEntry()">Toevoegen</button>
+</div>
+
+<div class="card stats">
+  <p>🔥 Kcal vandaag: <span id="kcal">0</span></p>
+  <p>💧 Water vandaag: <span id="water">0</span> L</p>
+  <p>➡️ Kcal over: <span id="left">0</span></p>
+</div>
+
+<div class="card">
+  <button onclick="resetDay()">Nieuwe dag</button>
+</div>
+
+<script>
+  let kcal = Number(localStorage.getItem("kcal")) || 0;
+  let water = Number(localStorage.getItem("water")) || 0;
+
+  document.getElementById("kcal").innerText = kcal;
+  document.getElementById("water").innerText = water;
+
+  function saveGoals() {
+    localStorage.setItem("kcalGoal", document.getElementById("kcalGoal").value);
+    localStorage.setItem("waterGoal", document.getElementById("waterGoal").value);
+    updateLeft();
+  }
+
+  function addEntry() {
+    let text = document.getElementById("input").value.toLowerCase();
+
+    if (text.includes("water")) {
+      let amount = parseFloat(text.replace(/[^0-9.]/g, ""));
+      water += amount;
+      localStorage.setItem("water", water);
+      document.getElementById("water").innerText = water;
+    } else {
+      let estimated = Math.floor(Math.random() * 300) + 100;
+      kcal += estimated;
+      localStorage.setItem("kcal", kcal);
+      document.getElementById("kcal").innerText = kcal;
+    }
+
+    updateLeft();
+    document.getElementById("input").value = "";
+  }
+
+  function updateLeft() {
+    let goal = Number(localStorage.getItem("kcalGoal")) || 0;
+    document.getElementById("left").innerText = goal - kcal;
+  }
+
+  function resetDay() {
+    kcal = 0;
+    water = 0;
+    localStorage.setItem("kcal", 0);
+    localStorage.setItem("water", 0);
+    updateLeft();
+    document.getElementById("kcal").innerText = 0;
+    document.getElementById("water").innerText = 0;
+  }
+
+  updateLeft();
+</script>
+
+</body>
+</html>
