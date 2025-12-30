@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kcal Tracker AI</title>
+  <title>Kcal & Eiwit Tracker</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -47,25 +47,28 @@
 </head>
 <body>
 
-<h1>🔥 Kcal Tracker AI</h1>
+<h1>🔥 Kcal & 💪 Eiwit Tracker</h1>
 
 <div class="card">
   <p class="small">Dagelijkse doelen</p>
   <input id="kcalGoal" placeholder="Kcal doel (bv. 2300)">
+  <input id="proteinGoal" placeholder="Eiwit doel in gram (bv. 160)">
   <input id="waterGoal" placeholder="Water doel in liter (bv. 2)">
   <button onclick="saveGoals()">Opslaan</button>
 </div>
 
 <div class="card">
   <p class="small">Wat heb je gegeten of gedronken?</p>
-  <input id="input" placeholder="bv. 2 eieren, 2 boterhammen / water 0.5">
+  <input id="input" placeholder="bv. kipfilet 30g eiwit / water 0.5">
   <button onclick="addEntry()">Toevoegen</button>
 </div>
 
 <div class="card stats">
   <p>🔥 Kcal vandaag: <span id="kcal">0</span></p>
+  <p>💪 Eiwit vandaag: <span id="protein">0</span> g</p>
   <p>💧 Water vandaag: <span id="water">0</span> L</p>
   <p>➡️ Kcal over: <span id="left">0</span></p>
+  <p>➡️ Eiwit over: <span id="proteinLeft">0</span> g</p>
 </div>
 
 <div class="card">
@@ -74,13 +77,16 @@
 
 <script>
   let kcal = Number(localStorage.getItem("kcal")) || 0;
+  let protein = Number(localStorage.getItem("protein")) || 0;
   let water = Number(localStorage.getItem("water")) || 0;
 
   document.getElementById("kcal").innerText = kcal;
+  document.getElementById("protein").innerText = protein;
   document.getElementById("water").innerText = water;
 
   function saveGoals() {
     localStorage.setItem("kcalGoal", document.getElementById("kcalGoal").value);
+    localStorage.setItem("proteinGoal", document.getElementById("proteinGoal").value);
     localStorage.setItem("waterGoal", document.getElementById("waterGoal").value);
     updateLeft();
   }
@@ -94,9 +100,16 @@
       localStorage.setItem("water", water);
       document.getElementById("water").innerText = water;
     } else {
-      let estimated = Math.floor(Math.random() * 300) + 100;
-      kcal += estimated;
+      let proteinMatch = text.match(/(\d+)\s*g\s*eiwit/);
+      let proteinAmount = proteinMatch ? Number(proteinMatch[1]) : 0;
+
+      protein += proteinAmount;
+      kcal += proteinAmount * 4; // simpele kcal schatting
+
+      localStorage.setItem("protein", protein);
       localStorage.setItem("kcal", kcal);
+
+      document.getElementById("protein").innerText = protein;
       document.getElementById("kcal").innerText = kcal;
     }
 
@@ -105,18 +118,27 @@
   }
 
   function updateLeft() {
-    let goal = Number(localStorage.getItem("kcalGoal")) || 0;
-    document.getElementById("left").innerText = goal - kcal;
+    let kcalGoal = Number(localStorage.getItem("kcalGoal")) || 0;
+    let proteinGoal = Number(localStorage.getItem("proteinGoal")) || 0;
+
+    document.getElementById("left").innerText = kcalGoal - kcal;
+    document.getElementById("proteinLeft").innerText = proteinGoal - protein;
   }
 
   function resetDay() {
     kcal = 0;
+    protein = 0;
     water = 0;
+
     localStorage.setItem("kcal", 0);
+    localStorage.setItem("protein", 0);
     localStorage.setItem("water", 0);
-    updateLeft();
+
     document.getElementById("kcal").innerText = 0;
+    document.getElementById("protein").innerText = 0;
     document.getElementById("water").innerText = 0;
+
+    updateLeft();
   }
 
   updateLeft();
